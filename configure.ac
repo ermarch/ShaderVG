@@ -1,10 +1,17 @@
-AC_INIT(ShaderVG, 1.0.0)
+AC_INIT([ShaderVG],[1.0.0])
 AC_CONFIG_HEADERS([config.h:config.h.in])
 AM_INIT_AUTOMAKE([foreign])
-AC_CANONICAL_HOST
 
-AC_PROG_CC_C99
-AC_PROG_LIBTOOL
+# Checks for programs.
+AC_CANONICAL_HOST
+AG_GST_INIT
+LT_INIT
+
+# Checks for programs.
+AC_PROG_CC
+
+# Ensure that tests are run with the C compiler
+#AC_LANG([CC])
 
 # ==============================================
 # Check examples selection
@@ -85,108 +92,88 @@ AC_CHECK_LIB([m],[cos])
 # ==============================================
 # Platform-specific directories and flags
 
-case "${host}" in
+case "${host_os}" in
 *darwin*)
-	GL_DIR="OpenGL"
-	GLUT_DIR="GLUT"
 	GL_LIB="-framework OpenGL"
 	GLUT_LIB="-framework GLUT"
 	CONFIG_CFLAGS=""
 	CONFIG_LDFLAGS="-framework OpenGL -framework GLUT"
-	CONFIG_LDADD="" ;;
-*mingw* | *cygwin*)
-	GL_DIR="GL"
-	GLUT_DIR="GL"
-	GL_LIB="-lGL"
-	GLUT_FLAGS="-lglut"
-	CONFIG_CFLAGS=""
-	CONFIG_LDFLAGS=""
-	CONFIG_LDADD="-lglut -lGL" ;;
+	CONFIG_LDADD=""
+	AC_CHECK_HEADERS([OpenGL/gl.h],
+		[has_gl_h="yes"], [has_gl_h="no"])
+
+	AC_CHECK_HEADERS([OpenGL/glu.h],
+		[has_glu_h="yes"], [has_glu_h="no"])
+
+	AC_CHECK_HEADERS([GLUT/glut.h],
+		[has_glut_h="yes"], [has_glut_h="no"])
+	;;
+#*mingw* | *cygwin*)
 *)
-	GL_DIR="GL"
-	GLUT_DIR="GL"
 	GL_LIB="-lGL"
 	GLUT_LIB="-lglut"
 	CONFIG_CFLAGS=""
 	CONFIG_LDFLAGS=""
-	CONFIG_LDADD="-lglut -lGL" ;;
+	CONFIG_LDADD="-lglut -lGL"
+
+# Check for OpenGL and GLUT headers
+	AC_CHECK_HEADERS([GL/gl.h],
+		[has_gl_h="yes"], [has_gl_h="no"])
+
+	AC_CHECK_HEADERS([GL/glu.h],
+		[has_glu_h="yes"], [has_glu_h="no"])
+
+	AC_CHECK_HEADERS([GL/glut.h],
+		[has_glut_h="yes"], [has_glut_h="no"])
 	
+	case "${host_os}" in
+	*linux*)
+		AC_CHECK_HEADERS([GL/glx.h],
+			[has_glx_h]="yes", [has_glx_h]="no") ;;
+	esac
+	;;
 esac
 
 AC_SUBST([CONFIG_CFLAGS])
 AC_SUBST([CONFIG_LDFLAGS])
 AC_SUBST([CONFIG_LDADD])
 
-# ==============================================
-# Check for OpenGL and GLUT headers
-
-AC_CHECK_HEADERS(
-	[$GL_DIR/gl.h],
-	[has_gl_h="yes"], [has_gl_h="no"])
-
-AC_CHECK_HEADERS(
-	[$GL_DIR/glu.h],
-	[has_glu_h="yes"], [has_glu_h="no"])
-
-AC_CHECK_HEADERS(
-	[$GLUT_DIR/glut.h],
-	[has_glut_h="yes"], [has_glut_h="no"])
-
-case "${host}" in
-*linux*)
-	AC_CHECK_HEADERS(
-		[$GL_DIR/glx.h],
-		[has_glx_h]="yes", [has_glx_h]="no") ;;
-esac
-
 # ===============================================
 # Check for OpenGL and GLUT libraries
 
-LDFLAGS="$LDFLAGS $GL_LIB"
+AC_CHECK_LIB([GL], [glEnd],
+	 [has_gl="yes"], [has_gl="no"])
 
-echo -n "checking for OpenGL library... "
-AC_LINK_IFELSE([
-	char glEnd();
-	int main(void) {glEnd(); return 0;}],
-	[has_gl="yes"] && [echo "yes"],
-	[has_gl="no"] && [echo "no"])
-
-case "${host}" in
+case "${host_os}" in
 *linux*)
-	AC_CHECK_LIB(
-		[GL], glXGetProcAddress,
+	AC_CHECK_LIB([GL], glXGetProcAddress,
 		[has_glx="yes"], [has_glx="no"]) ;;
 esac
 
-LDFLAGS="$LDFLAGS $GLUT_LIB"
-
-echo -n "checking for GLUT library... "
-AC_LINK_IFELSE([
-	char glutInit();
-	int main(void) {glutInit(); return 0;}],
-	[has_glut="yes"] && [echo "yes"],
-	[has_glut="no"] && [echo "no"])
+AC_CHECK_LIB([glut], [glutInit],
+	 [has_glut="yes"], [has_glut="no"])
 
 LDFLAGS=""
 
 # ==============================================
 # JPEG library required for VGImage example
 
-CFLAGS="-I$prefix/include"
+#CFLAGS="$CFLASG -I$prefix/include"
 LDFLAGS="-ljpeg -L/usr/local/lib -L$prefix/lib"
 
 AC_CHECK_HEADERS(
-	[jpeglib.h],
+	jpeglib.h,
 	[has_jpeg_h="yes"], [has_jpeg_h="no"])
 
-echo -n "checking for JPEG library... "
+AC_MSG_CHECKING([JPEG library])
 AC_LINK_IFELSE([
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <jpeglib.h>
-	int main(void) {jpeg_create_decompress(0); return 0;}],
-	[has_jpeg="yes"] && echo "yes",
-	[has_jpeg="no"] && echo "no")
+	AC_LANG_SOURCE([
+		#include <stdio.h>
+		#include <stdlib.h>
+		#include <jpeglib.h>
+		int main(void) {jpeg_create_decompress(0); return 0;}
+	])], [has_jpeg="yes"], [has_jpeg="no"])
+AC_MSG_RESULT($has_jpeg)
 
 if test "x$build_test_image" = "xyes"; then
 
@@ -245,7 +232,7 @@ if test "x$has_gl" = "xno"; then
 	AC_MSG_FAILURE([$NO_GL_MSG])
 fi
 
-case "${host}" in
+case "${host_os}" in
 *linux*)
 	if test "x$has_glx_h" = "xno"; then
 		AC_MSG_FAILURE([$NO_GLX_H_MSG])
@@ -271,11 +258,12 @@ AM_CONDITIONAL([BUILD_PATTERN],     [test "x$build_test_pattern" = "xyes"])
 AM_CONDITIONAL([BUILD_BLEND],       [test "x$build_test_blend" = "xyes"])
 AM_CONDITIONAL([BUILD_TIGER_SHADER],[test "x$build_test_tiger_shader" = "xyes"])
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 src/Makefile
 examples/Makefile
 ])
+AC_OUTPUT
 
 # =============================================
 
