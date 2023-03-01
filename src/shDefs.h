@@ -151,7 +151,7 @@ SHfloat getMaxFloat();
 #include "shExtensions.h"
 
 #define GL_GET_ERROR printf("glGetError() -> %d line:%d file:%s\r\n", glGetError(), __LINE__, __FILE__)
-#define GL_CEHCK_ERROR \
+#define GL_CHECK_ERROR \
  { \
    GLint err = glGetError(); \
    if(err){\

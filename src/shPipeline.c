@@ -97,7 +97,7 @@ static void shDrawStroke(SHPath *p)
   glVertexAttribPointer(context->locationDraw.pos, 2, GL_FLOAT, GL_FALSE, 0, p->stroke.items);
   glDrawArrays(GL_TRIANGLES, 0, p->stroke.size);
   glDisableVertexAttribArray(context->locationDraw.pos);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 }
 
 /*-----------------------------------------------------------
@@ -123,7 +123,7 @@ static void shDrawVertices(SHPath *p, GLenum mode)
   }
   
   glDisableVertexAttribArray(context->locationDraw.pos);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 }
 
 /*--------------------------------------------------------------
@@ -183,7 +183,7 @@ static void shDrawPaintMesh(VGContext *c, SHVector2 *min, SHVector2 *max,
   glVertexAttribPointer(c->locationDraw.pos, 2, GL_FLOAT, GL_FALSE, 0, v);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glDisableVertexAttribArray(c->locationDraw.pos);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 }
 
 VGboolean shIsTessCacheValid (VGContext *c, SHPath *p)
@@ -313,7 +313,7 @@ VG_API_CALL void vgDrawPath(VGPath path, VGbitfield paintModes)
   glUseProgram(context->progDraw);
   glUniformMatrix4fv(context->locationDraw.model, 1, GL_FALSE, mgl);
   glUniform1i(context->locationDraw.drawMode, 0); /* drawMode: path */
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
   
   if (paintModes & VG_FILL_PATH) {
     
@@ -428,7 +428,7 @@ VG_API_CALL void vgDrawImage(VGImage image)
   glUseProgram(context->progDraw);
   glUniformMatrix4fv(context->locationDraw.model, 1, GL_FALSE, mgl);
   glUniform1i(context->locationDraw.drawMode, 1); /* drawMode: image */
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
   
   /* Clamp to edge for proper filtering, modulate for multiply mode */
   glActiveTexture(GL_TEXTURE0);
@@ -452,7 +452,7 @@ VG_API_CALL void vgDrawImage(VGImage image)
                    1.0f, 1.0f };
   glVertexAttribPointer(context->locationDraw.textureUV, 2, GL_FLOAT, GL_FALSE, 0, uv);
   glUniform1i(context->locationDraw.imageSampler, 0);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
   
   /* Pick fill paint */
   fill = (context->fillPaint ? context->fillPaint : &context->defaultPaint);
@@ -495,7 +495,7 @@ VG_API_CALL void vgDrawImage(VGImage image)
   glDisableVertexAttribArray(context->locationDraw.pos);
     
   glDisable(GL_TEXTURE_2D);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
  
   glDisableVertexAttribArray(context->locationDraw.textureUV);
 

@@ -1231,6 +1231,6 @@ VG_API_CALL void vgBindImageSH(VGImage image, VGImageUnitSH unit){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
   glEnable(GL_TEXTURE_2D);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 }
 

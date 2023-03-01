@@ -58,7 +58,7 @@ void SHPaint_ctor(SHPaint *p)
   glBindTexture(GL_TEXTURE_2D, p->texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SH_GRADIENT_TEX_WIDTH, SH_GRADIENT_TEX_HEIGHT, 0,
                GL_RGBA, GL_FLOAT, NULL);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 }
 
 void SHPaint_dtor(SHPaint *p)
@@ -188,7 +188,7 @@ void shUpdateColorRampTexture(SHPaint *p)
   for(int i = 0; i < SH_GRADIENT_TEX_HEIGHT ; i++)
       glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i, SH_GRADIENT_TEX_WIDTH, 1, GL_RGBA, GL_FLOAT, rgba);
 
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 }
 
 void shValidateInputStops(SHPaint *p)
@@ -417,7 +417,7 @@ int shLoadLinearGradientMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMo
   shSetGradientTexGLState(p);
   glEnable(GL_TEXTURE_2D);
   glUniform1i(context->locationDraw.rampSampler, 1);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 
   return 1; 
 }
@@ -447,7 +447,7 @@ int shLoadRadialGradientMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMo
   shSetGradientTexGLState(p);
   glEnable(GL_TEXTURE_2D);
   glUniform1i(context->locationDraw.rampSampler, 1);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 
   return 1; 
 }
@@ -478,7 +478,7 @@ int shLoadPatternMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMode)
   shSetPatternTexGLState(p, context);
   glEnable(GL_TEXTURE_2D);
   glUniform1i(context->locationDraw.patternSampler, 1);
-  GL_CEHCK_ERROR;
+  GL_CHECK_ERROR;
 
   return 1; 
 }
