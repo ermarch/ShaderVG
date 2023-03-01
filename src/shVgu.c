@@ -317,6 +317,39 @@ VGU_API_CALL VGUErrorCode vguComputeWarpQuadToSquare(VGfloat sx0, VGfloat sy0,
                                                     VGfloat sx3, VGfloat sy3,
                                                     VGfloat * matrix)
 {
+  /* Basic idea taken from the reference implementation */
+  VGfloat mat[3][3];
+  VGfloat det, det00, det01, det02;
+
+  if( !matrix )
+    return VGU_ILLEGAL_ARGUMENT_ERROR;
+
+  if(    vguComputeWarpSquareToQuad( sx0, sy0, sx1, sy1, sx2, sy2, sx3, sy3,
+                                     (VGfloat*)mat )
+      == VGU_BAD_WARP_ERROR )
+    return VGU_BAD_WARP_ERROR;
+
+  // Invert the matrix...
+  det00 = mat[1][1]*mat[2][2] - mat[2][1]*mat[1][2];
+  det01 = mat[2][0]*mat[1][2] - mat[1][0]*mat[2][2];
+  det02 = mat[1][0]*mat[2][1] - mat[2][0]*mat[1][1];
+
+  det = mat[0][0]*det00 + mat[0][1]*det01 + mat[0][2]*det02;
+  if( det == 0.0f )
+    return VGU_BAD_WARP_ERROR;
+
+  det = 1 / det;
+
+  matrix[0] = det * det00;
+  matrix[3] = det * det01;
+  matrix[6] = det * det02;
+  matrix[1] = det * (mat[2][1]*mat[0][2] - mat[0][1]*mat[2][2]);
+  matrix[4] = det * (mat[0][0]*mat[2][2] - mat[2][0]*mat[0][2]);
+  matrix[7] = det * (mat[2][0]*mat[0][1] - mat[0][0]*mat[2][1]);
+  matrix[2] = det * (mat[0][1]*mat[1][2] - mat[1][1]*mat[0][2]);
+  matrix[5] = det * (mat[1][0]*mat[0][2] - mat[0][0]*mat[1][2]);
+  matrix[8] = det * (mat[0][0]*mat[1][1] - mat[1][0]*mat[0][1]);
+
   return VGU_NO_ERROR;
 }
 
@@ -326,6 +359,56 @@ VGU_API_CALL VGUErrorCode vguComputeWarpSquareToQuad(VGfloat dx0, VGfloat dy0,
                                                     VGfloat dx3, VGfloat dy3,
                                                     VGfloat * matrix)
 {
+  /* Taken from https://github.com/mvr/shivavg (who has taken it from the
+     reference implementation) */
+
+  VGfloat diffx1 = dx1 - dx3;
+  VGfloat diffy1 = dy1 - dy3;
+  VGfloat diffx2 = dx2 - dx3;
+  VGfloat diffy2 = dy2 - dy3;
+
+  VGfloat det = diffx1*diffy2 - diffx2*diffy1;
+
+  VGfloat sumx = dx0 - dx1 + dx3 - dx2;
+  VGfloat sumy = dy0 - dy1 + dy3 - dy2;
+
+  VGfloat g, h, oodet;
+
+  if(!matrix)
+    return VGU_ILLEGAL_ARGUMENT_ERROR;
+
+  if(det == 0.0f)
+    return VGU_BAD_WARP_ERROR;
+
+  if(sumx == 0.0f && sumy == 0.0f)
+  {
+    /* Affine mapping */
+    matrix[0] = dx1 - dx0;
+    matrix[1] = dy1 - dy0;
+    matrix[2] = 0.0f;
+    matrix[3] = dx3 - dx1;
+    matrix[4] = dy3 - dy1;
+    matrix[5] = 0.0f;
+    matrix[6] = dx0;
+    matrix[7] = dy0;
+    matrix[8] = 1.0f;
+    return VGU_NO_ERROR;
+  }
+
+  oodet = 1.0f / det;
+  g = (sumx*diffy2 - diffx2*sumy) * oodet;
+  h = (diffx1*sumy - sumx*diffy1) * oodet;
+
+  matrix[0] = dx1-dx0+g*dx1;
+  matrix[1] = dy1-dy0+g*dy1;
+  matrix[2] = g;
+  matrix[3] = dx2-dx0+h*dx2;
+  matrix[4] = dy2-dy0+h*dy2;
+  matrix[5] = h;
+  matrix[6] = dx0;
+  matrix[7] = dy0;
+  matrix[8] = 1.0f;
+
   return VGU_NO_ERROR;
 }
 

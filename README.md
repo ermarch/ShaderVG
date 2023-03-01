@@ -192,8 +192,8 @@ vguRect                    | FULLY implemented
 vguRoundRect               | FULLY implemented    
 vguEllipse                 | FULLY implemented    
 vguArc                     | FULLY implemented    
-vguComputeWarpQuadToSquare | NOT implemented      
-vguComputeWarpSquareToQuad | NOT implemented      
+vguComputeWarpQuadToSquare | FULLY implemented    
+vguComputeWarpSquareToQuad | FULLY implemented    
 vguComputeWarpQuadToQuad   | NOT implemented      
         
 ## Extensions
