@@ -135,7 +135,7 @@ static void shDrawVertices(SHPath *p, GLenum mode)
 static void shDrawPaintMesh(VGContext *c, SHVector2 *min, SHVector2 *max,
                             VGPaintMode mode, GLenum texUnit)
 {
-  SHPaint *p;
+  SHPaint *p=0;
   SHVector2 pmin, pmax;
   SHfloat K = 1.0f;
   
@@ -402,7 +402,7 @@ VG_API_CALL void vgDrawImage(VGImage image)
   SHImage *i;
   SHfloat mgl[16];
   SHPaint *fill;
-  SHVector2 min, max;
+//SHVector2 min, max;
   SHRectangle *rect;
   
   VG_GETCONTEXT(VG_NO_RETVAL);

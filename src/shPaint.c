@@ -193,7 +193,7 @@ void shUpdateColorRampTexture(SHPaint *p)
 
 void shValidateInputStops(SHPaint *p)
 {
-  SHStop *instop, stop;
+  SHStop *instop, stop={0,{0,0,0,0}};
   SHfloat lastOffset=0.0f;
   int i;
   
@@ -394,7 +394,7 @@ void shSetPatternTexGLState(SHPaint *p, VGContext *c)
 
 int shLoadLinearGradientMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMode)
 {
-  SHMatrix3x3 *m;
+  SHMatrix3x3 *m=0;
   SHMatrix3x3 mu2p;
   GLfloat u2p[9];
 
@@ -424,7 +424,7 @@ int shLoadLinearGradientMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMo
 
 int shLoadRadialGradientMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMode)
 {
-  SHMatrix3x3 *m;
+  SHMatrix3x3 *m=0;
   SHMatrix3x3 mu2p;
   GLfloat u2p[9];
 
@@ -455,7 +455,7 @@ int shLoadRadialGradientMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMo
 int shLoadPatternMesh(SHPaint *p, VGPaintMode mode, VGMatrixMode matrixMode)
 {
   SHImage *i = (SHImage*)p->pattern;
-  SHMatrix3x3 *m;
+  SHMatrix3x3 *m=0;
   SHMatrix3x3 mu2p;
   GLfloat u2p[9];
 
